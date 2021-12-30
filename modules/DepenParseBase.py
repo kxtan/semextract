@@ -230,8 +230,18 @@ class DepenParseBase:
         
         return None, None
 
-    def get_obj_from_xcomp(self, deps):
+    def get_obj_from_xcomp(self, deps:list) -> Tuple[Token, list]:
+        """Get object from verb token with xcomp dependencies
+
+        Args:
+            deps (list): list of tokens
+
+        Returns:
+            Tuple[Token, list]: verb token, list of objects being addressed
+        """
+
         for dep in deps:
+
             if dep.pos_ == "VERB" and dep.dep_ == "xcomp":
                 v = dep
                 rights = list(v.rights)
@@ -239,19 +249,39 @@ class DepenParseBase:
                 objs.extend(self.get_objs_from_prepositions(rights))
                 if len(objs) > 0:
                     return v, objs
+
         return None, None
 
-    def get_all_subs(self, v):
+    def get_all_subs(self, v) -> Tuple[list, bool]:
+        """Get subjects to the left of verb token
+
+        Args:
+            v ([type]): verb token
+
+        Returns:
+            Tuple[list, bool]: list of subjects, verb is negated or not
+        """
+        
         verbNegated = self.is_negated(v)
         subs = [tok for tok in v.lefts if tok.dep_ in self.SUBJECTS and tok.pos_ != "DET"]
+
         if len(subs) > 0:
             subs.extend(self.get_subs_from_conjunctions(subs))
         else:
             foundSubs, verbNegated = self.find_subs(v)
             subs.extend(foundSubs)
+
         return subs, verbNegated
 
-    def get_all_objs_from_adj(self, adj):
+    def get_all_objs_from_adj(self, adj:Token) -> list:
+        """Obtain objects (left and right) from given adjective
+
+        Args:
+            adj (Token): adjective token
+
+        Returns:
+            list: list of object tokens
+        """
         left_rights = list(adj.rights) + list(adj.lefts)
         objs = [tok for tok in left_rights if tok.dep_ in self.OBJECTS]
 
@@ -285,6 +315,7 @@ class DepenParseBase:
             v = potentialNewVerb
         if len(objs) > 0:
             objs.extend(self.get_objs_from_conjunctions(objs))
+        
         return v, objs
 
     def get_all_objs_with_adjectives(self, v):
@@ -303,6 +334,7 @@ class DepenParseBase:
             v = potentialNewVerb
         if len(objs) > 0:
             objs.extend(self.get_objs_from_conjunctions(objs))
+        
         return v, objs
 
     def find_svos(self, tokens):
@@ -320,6 +352,7 @@ class DepenParseBase:
                             (sub.lower_, "!" + v.lower_ if verbNegated or objNegated 
                             else v.lower_, obj.lower_)
                         )
+        
         return svos
 
     def find_svaos(self, tokens):
@@ -339,6 +372,7 @@ class DepenParseBase:
                         svos.append((" ".join(tok.lower_ for tok in sub_compound), 
                         "!" + v.lower_ if verbNegated or objNegated else v.lower_, 
                         " ".join(tok.lower_ for tok in obj_desc_tokens)))
+        
         return svos
 
     def generate_sub_compound(self, sub):
@@ -350,6 +384,7 @@ class DepenParseBase:
         for tok in sub.rights:
             if tok.dep_ in self.COMPOUNDS:
                 sub_compunds.extend(self.generate_sub_compound(tok))
+        
         return sub_compunds
 
     def generate_left_right_adjectives(self, obj):
@@ -362,4 +397,5 @@ class DepenParseBase:
         for tok in obj.rights:
             if tok.dep_ in self.ADJECTIVES:
                 obj_desc_tokens.extend(self.generate_left_right_adjectives(tok))
+        
         return obj_desc_tokens
