@@ -1,6 +1,3 @@
-"""Base Class for dependancy parsing
-"""
-
 from typing import Tuple
 from spacy import Token
 
