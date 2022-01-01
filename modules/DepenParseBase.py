@@ -287,7 +287,15 @@ class DepenParseBase:
 
         return objs
 
-    def chain_adjectives_before_nouns(self, toks):
+    def chain_adjectives_before_nouns(self, toks:list) -> Tuple[list, list]:
+        """Collect all adjectives and chain it to the next available noun
+
+        Args:
+            toks (list): list of tokens
+
+        Returns:
+            Tuple[list, list]: list of adjectives, list of nouns
+        """
         adjs = []
         nouns = []
         final_adj_pos = 0
@@ -303,23 +311,43 @@ class DepenParseBase:
 
         return adjs, nouns 
 
-    def get_all_objs(self, v):
-        # rights is a generator
+    def get_all_objs(self, v:Token) -> Tuple[Token, list]:
+        """Chain potential new verbs to current token and
+        obtain objects to the right of given token
+
+        Args:
+            v (Token): spacy token
+
+        Returns:
+            Tuple[Token, list]: updated token, list of objects
+        """
+        
         rights = list(v.rights)
         objs = [tok for tok in rights if tok.dep_ in self.OBJECTS]
         objs.extend(self.get_objs_from_prepositions(rights))
 
-        potentialNewVerb, potentialNewObjs = self.get_obj_from_xcomp(rights)
-        if potentialNewVerb is not None and potentialNewObjs is not None and len(potentialNewObjs) > 0:
-            objs.extend(potentialNewObjs)
-            v = potentialNewVerb
+        potential_new_verb, potential_new_objs = self.get_obj_from_xcomp(rights)
+        
+        if potential_new_verb is not None and potential_new_objs is not None and len(potential_new_objs) > 0:
+            objs.extend(potential_new_objs)
+            v = potential_new_verb
+
         if len(objs) > 0:
             objs.extend(self.get_objs_from_conjunctions(objs))
         
         return v, objs
 
-    def get_all_objs_with_adjectives(self, v):
-        # rights is a generator
+    def get_all_objs_with_adjectives(self, v:Token) -> Tuple[Token, list]:
+        """Chain potential new verbs to current token and
+        obtain objects with adjectives to the right of given token
+
+        Args:
+            v (Token): spacy token
+
+        Returns:
+            Tuple[Token, list]: updated token, list of objects with adjectives
+        """
+        
         rights = list(v.rights)
         objs = [tok for tok in rights if tok.dep_ in self.OBJECTS]
 
@@ -328,16 +356,26 @@ class DepenParseBase:
 
         objs.extend(self.get_objs_from_prepositions(rights))
 
-        potentialNewVerb, potentialNewObjs = self.get_obj_from_xcomp(rights)
-        if potentialNewVerb is not None and potentialNewObjs is not None and len(potentialNewObjs) > 0:
-            objs.extend(potentialNewObjs)
-            v = potentialNewVerb
+        potential_new_verb, potential_new_objs = self.get_obj_from_xcomp(rights)
+
+        if potential_new_verb is not None and potential_new_objs is not None and len(potential_new_objs) > 0:
+            objs.extend(potential_new_objs)
+            v = potential_new_verb
+        
         if len(objs) > 0:
             objs.extend(self.get_objs_from_conjunctions(objs))
         
         return v, objs
 
-    def find_svos(self, tokens):
+    def find_svos(self, tokens:list) -> list:
+        """Find semantic triples (subject-verb-object)
+
+        Args:
+            tokens (list): list of spacy tokens
+
+        Returns:
+            list: list of semantic triples
+        """
         svos = []
         verbs = [tok for tok in tokens if tok.pos_ == "VERB" and tok.dep_ != "aux"]
         for v in verbs:
@@ -355,7 +393,15 @@ class DepenParseBase:
         
         return svos
 
-    def find_svaos(self, tokens):
+    def find_svaos(self, tokens:list) -> list:
+        """Find semantic triples (subject-adjective_verb-objects)
+
+        Args:
+            tokens (list): list of spacy tokens
+
+        Returns:
+            list: list of semantic triples
+        """
         svos = []
         verbs = [tok for tok in tokens if tok.pos_ == "VERB"] 
         
@@ -375,19 +421,38 @@ class DepenParseBase:
         
         return svos
 
-    def generate_sub_compound(self, sub):
-        sub_compunds = []
+    def generate_sub_compound(self, sub:Token) -> list:
+        """Generate compounds to the left/right of given subject
+
+        Args:
+            sub (Token): spacy subject token
+
+        Returns:
+            list: list of compounds of the input
+        """
+
+        sub_compounds = []
+        
         for tok in sub.lefts:
             if tok.dep_ in self.COMPOUNDS:
-                sub_compunds.extend(self.generate_sub_compound(tok))
-        sub_compunds.append(sub)
+                sub_compounds.extend(self.generate_sub_compound(tok))
+        sub_compounds.append(sub)
+        
         for tok in sub.rights:
             if tok.dep_ in self.COMPOUNDS:
-                sub_compunds.extend(self.generate_sub_compound(tok))
+                sub_compounds.extend(self.generate_sub_compound(tok))
         
-        return sub_compunds
+        return sub_compounds
 
-    def generate_left_right_adjectives(self, obj):
+    def generate_left_right_adjectives(self, obj:Token) -> list:
+        """Generate adjectives to the left/right of the given object
+
+        Args:
+            obj (Token): spacy object token
+
+        Returns:
+            list: list of adjectives of the input
+        """
         obj_desc_tokens = []
         for tok in obj.lefts:
             if tok.dep_ in self.ADJECTIVES:
