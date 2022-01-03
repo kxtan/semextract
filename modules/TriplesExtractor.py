@@ -2,7 +2,7 @@ from DepenParseBase import DepenParseBase
 import spacy
 import subprocess
 
-class Triples:
+class TriplesExtractor:
     """Extract semantic triples for knowledge graph construction
     """
 
