@@ -1,5 +1,5 @@
 from typing import Tuple
-from spacy import Token
+from spacy.tokens import Token
 
 class DepenParseBase:
     """Base Class for dependency parsing
