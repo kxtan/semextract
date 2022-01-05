@@ -31,3 +31,43 @@ def df_from_triples_dict(triples_dict:dict) -> pd.DataFrame:
     }
 
     return pd.DataFrame.from_dict(dct)
+
+
+def triples_dict_from_df(triples_df:pd.DataFrame, 
+        identifier="id",
+        subject="subject",
+        predicate="predicate",
+        obj="object"
+    ) -> dict:
+    """Converts semantic triples (ST) df to dictionary representation
+
+    Args:
+        triples_df (pd.DataFrame): pandas dataframe of ST
+        identifier (str, optional): identifier for ST. Defaults to "id".
+        subject (str, optional): subject of ST. Defaults to "subject".
+        predicate (str, optional): predicate of ST. Defaults to "predicate".
+        obj (str, optional): object of ST. Defaults to "object".
+
+    Returns:
+        dict: dictionary representation of semantic triples
+    """
+
+    triples_dict = {}
+
+    id_lst = triples_df[identifier].values
+    subject_lst = triples_df[subject].values
+    predicate_lst = triples_df[predicate].values
+    obj_lst = triples_df[obj].values
+
+    zipped = zip(id_lst, subject_lst, predicate_lst, obj_lst)
+
+    for id_value, sub, pred, obj in zipped:
+        
+        triples = (sub, pred, obj)
+
+        if id_value in triples_dict:
+            triples_dict[id_value].append(triples)
+        else:
+            triples_dict[id_value] = [triples]
+
+    return triples_dict
