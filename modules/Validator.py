@@ -44,15 +44,15 @@ class TriplesValidator:
     """Validation class for knowledge graphs
     """
 
-    def naive_validation(triples_dict:dict, source_dict:dict) -> dict: 
+    def naive_validation(self, triples_dict:dict, source_dict:dict) -> dict: 
         """Naive validation of semantic triples
 
         Args:
-            triples_dict (dict): [description]
-            source_dict (dict): [description]
+            triples_dict (dict): dictionary of triples
+            source_dict (dict): dictionary of source("ground truths")
 
         Returns:
-            dict: [description]
+            dict: returns list of meta objects
         """
 
         results_collection = []
@@ -62,6 +62,7 @@ class TriplesValidator:
             if triples_key in source_dict:
                 meta = Meta(triples_key, source_dict[triples_key], triples_lst)
                 meta.count_match()
+                meta.generate_match_pct()
 
                 results_collection.append(meta)
 
