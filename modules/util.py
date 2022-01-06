@@ -1,4 +1,5 @@
 import pandas as pd
+import re
 
 def df_from_triples_dict(triples_dict:dict) -> pd.DataFrame:
     """Converts triples dictionary to pandas dataframe
@@ -71,3 +72,19 @@ def triples_dict_from_df(triples_df:pd.DataFrame,
             triples_dict[id_value] = [triples]
 
     return triples_dict
+
+
+def simple_preprocess(text_list:list) -> list:
+    """Performs simple preprocessing on the list of texts
+
+    Args:
+        text_list (list): list of texts
+
+    Returns:
+        list: list of preprocessed texts in tokens format
+    """
+    text_list = [x.lower() for x in text_list]
+    text_list = [re.sub(r'[^\w]', ' ', x) for x in text_list]
+    text_list = [x.split() for x in text_list]
+
+    return text_list
