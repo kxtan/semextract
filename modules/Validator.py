@@ -37,6 +37,8 @@ class Meta:
         source_len = len(self.source_tokens)
         if source_len > 0: #division by zero check
             self.match_pct = self.matching_counts/source_len
+            if self.match_pct > 1.0:
+                self.match_pct = 1.0
         return self.match_pct
 
 
