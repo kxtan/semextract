@@ -88,3 +88,37 @@ def simple_preprocess(text_list:list) -> list:
     text_list = [x.split() for x in text_list]
 
     return text_list
+
+
+def tokens_intersect(id_list:list, source_tokens_list:list, target_tokens_list:list, threshold=3) -> list:
+    """Check if source tokens (to extract semantic triples from) has sufficient amount of 
+    matching tokens from the target (extract "gold standard")
+
+    Args:
+        id_list (list): list of id
+        source_tokens_list (list): source tokens
+        target_tokens_list (list): target tokens
+        threshold (int, optional): valid threshold. Defaults to 3.
+
+    Returns:
+        list: list of valid ids
+    """
+
+    valid_id_list = []
+
+    for _id, source_tokens, target_tokens in zip(id_list, source_tokens_list, target_tokens_list):
+
+        #make tokens unique:
+        uniq_source_tokens = list(set(source_tokens))
+        uniq_target_tokens = list(set(target_tokens))
+
+        count = 0
+
+        for source_token in uniq_source_tokens:
+            if source_token in uniq_target_tokens:
+                count += 1
+            if count > threshold:
+                valid_id_list.append(_id)
+                break
+    
+    return valid_id_list
