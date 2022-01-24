@@ -1,6 +1,8 @@
 import pandas as pd
 import re
 from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+
 
 def df_from_triples_dict(triples_dict:dict) -> pd.DataFrame:
     """Converts triples dictionary to pandas dataframe
@@ -173,5 +175,23 @@ def remove_single_character(tokens_list:list) -> list:
 
     for lst in tokens_list:
         return_lst.append([s for s in lst if len(s) > 1])
+
+    return return_lst
+
+
+def stem_words(tokens_list:list) -> list:
+    """Stem words from list of tokens
+
+    Args:
+        tokens_list (list): list of tokens
+
+    Returns:
+        list: list of tokens with stemmed words
+    """
+    return_lst = []
+    stemmer = PorterStemmer()
+
+    for lst in tokens_list:
+        return_lst.append([stemmer.stem(s) for s in lst])
 
     return return_lst
