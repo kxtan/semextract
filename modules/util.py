@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+from nltk.corpus import stopwords
 
 def df_from_triples_dict(triples_dict:dict) -> pd.DataFrame:
     """Converts triples dictionary to pandas dataframe
@@ -122,3 +123,55 @@ def tokens_intersect(id_list:list, source_tokens_list:list, target_tokens_list:l
                 break
     
     return valid_id_list
+
+
+def remove_stopwords(tokens_list:list) -> list:
+    """Remove stopwords from list of tokens. 
+
+    Args:
+        tokens_list (list): list containing token lists
+
+    Returns:
+        list: list of token lists with stop words removed
+    """
+    return_lst = []
+    stopw = stopwords.words('english')
+
+    for lst in tokens_list:
+        return_lst.append([word for word in lst if word not in stopw])
+
+    return return_lst
+
+
+def remove_numbers(tokens_list:list) -> list:
+    """Remove numbers from list of tokens.
+
+    Args:
+        tokens_list (list): list of tokens
+
+    Returns:
+        list: list of tokens with numbers removed
+    """
+    return_lst = []
+
+    for lst in tokens_list:
+        return_lst.append([s for s in lst if not s.isdigit()])
+
+    return return_lst
+
+
+def remove_single_character(tokens_list:list) -> list:
+    """Remove single characters from list of tokens
+
+    Args:
+        tokens_list (list): list of tokens
+
+    Returns:
+        list: list of tokens with single characters removed
+    """
+    return_lst = []
+
+    for lst in tokens_list:
+        return_lst.append([s for s in lst if len(s) > 1])
+
+    return return_lst
