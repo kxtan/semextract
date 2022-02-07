@@ -195,3 +195,55 @@ def stem_words(tokens_list:list) -> list:
         return_lst.append([stemmer.stem(s) for s in lst])
 
     return return_lst
+
+
+def stem_triples(df:pd.DataFrame, id_col="id", 
+    sbj_col="subject", pred_col="predicate", 
+    obj_col="object", negation="!") -> pd.DataFrame:
+    """Stem words from triples df
+
+    Args:
+        df (pd.DataFrame): semantic triples dataframe
+        id_col (str, optional): id column of df. Defaults to "id".
+        sbj_col (str, optional): subject column of df. Defaults to "subject".
+        pred_col (str, optional): predicate column of df. Defaults to "predicate".
+        obj_col (str, optional): object column of df. Defaults to "object".
+        negation (str, optional): negation substring in predicate. Defaults to "!".
+
+    Returns:
+        pd.DataFrame: [description]
+    """
+
+    stemmer = PorterStemmer()
+    sbj_lst = df[sbj_col].tolist()
+    predicate_lst = df[pred_col].tolist()
+    obj_lst = df[obj_col].tolist() 
+    
+    stem_sbj_lst = []
+    stem_predicate_lst = []
+    stem_obj_lst = [] 
+    
+    for sbj, pred, obj in zip(sbj_lst, predicate_lst, obj_lst):
+        negation_removed = False
+        if negation in pred:
+            pred = pred.replace(negation,'')
+            negation_removed = True
+
+        stemmed_pred = stemmer.stem(pred)
+        if negation_removed:
+            stemmed_pred = f"{negation}{stemmed_pred}"
+        stem_predicate_lst.append(stemmer.stem(stemmed_pred))
+        
+        stem_sbj_lst.append(stemmer.stem(sbj))
+        stem_obj_lst.append(stemmer.stem(obj))
+        
+    output_df = pd.DataFrame(
+        {
+            id_col : df[id_col].tolist(),
+            sbj_col : stem_sbj_lst,
+            pred_col : stem_predicate_lst,
+            obj_col : stem_obj_lst,
+        }
+    )
+    
+    return output_df
